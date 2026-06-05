@@ -16,7 +16,7 @@ export const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [isSimulated, setIsSimulated] = useState(false);
   const [loginError, setLoginError] = useState('');
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [, setIsGoogleLoading] = useState(false);
 
   const handleSimulateLogin = (e: React.FormEvent) => {
     e.preventDefault();
