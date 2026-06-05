@@ -1,0 +1,72 @@
+/* Google Fonts Import */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Cormorant Garamond", serif;
+  --font-sans: "Plus Jakarta Sans", sans-serif;
+
+  /* Custom Premium Therapist Palette */
+  --color-brand-cream: #FAF8F5;        /* Warm Alabaster Base */
+  --color-brand-linen: #F5EFEB;        /* Soft Warm Neutral */
+  --color-brand-stone: #E9E1DA;        /* Earthy Stone Accent */
+  
+  --color-brand-sage: #7A9080;         /* Calming Sage Green */
+  --color-brand-sage-light: #EEF3EF;   /* Soft Sage Light */
+  --color-brand-sage-dark: #4A5D4E;    /* Deep Forest Sage */
+  
+  --color-brand-gold: #C0A995;         /* Muted Warm Gold */
+  --color-brand-gold-dark: #97806D;    /* Deep Ochre Gold */
+  
+  --color-brand-charcoal: #202722;     /* Sage Slate (Primary text) */
+  --color-brand-charcoal-muted: #556259; /* Muted Sage (Secondary text) */
+
+  /* Extra visual helpers */
+  --shadow-premium: 0 4px 30px rgba(0, 0, 0, 0.015);
+  --shadow-glass: 0 8px 32px 0 rgba(122, 144, 128, 0.05);
+}
+
+/* Custom Base Styles & Fine-Tuning */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    background-color: var(--color-brand-cream);
+    color: var(--color-brand-charcoal);
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+}
+
+/* Custom Utility Classes for Apple × Calm styling */
+.glassmorphism {
+  background: rgba(250, 248, 245, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(32, 39, 34, 0.05);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Page transit cover scroll reset */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
