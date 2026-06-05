@@ -78,56 +78,28 @@ export const LoginPage: React.FC = () => {
 
             {/* Google federated login */}
             <div className="space-y-4">
-              <div className="relative w-full">
-                <button
-                  type="button"
-                  disabled={isGoogleLoading}
-                  className="w-full flex items-center justify-center space-x-3 py-3 px-4 rounded-xl border border-brand-charcoal/10 hover:border-brand-stone bg-brand-cream hover:bg-brand-linen/10 transition-all duration-300 cursor-pointer font-sans text-sm font-semibold text-brand-charcoal pointer-events-none"
-                >
-                  {/* SVG Google Logo */}
-                  <svg className="w-5 h-5" viewBox="0 0 24 24">
-                    <path
-                      fill="#4285F4"
-                      d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v3.92h6.69a5.74 5.74 0 0 1-2.49 3.77v3.13h4.01c2.34-2.16 3.69-5.32 3.69-8.75Z"
-                    />
-                    <path
-                      fill="#34A853"
-                      d="M12 24c3.24 0 5.97-1.08 7.96-2.91l-4.01-3.13c-1.12.75-2.55 1.2-3.95 1.2-3.04 0-5.61-2.05-6.53-4.82H1.31v3.23A12 12 0 0 0 12 24Z"
-                    />
-                    <path
-                      fill="#FBBC05"
-                      d="M5.47 14.34a7.16 7.16 0 0 1 0-4.68V6.43H1.31a12 12 0 0 0 0 11.14l4.16-3.23Z"
-                    />
-                    <path
-                      fill="#EA4335"
-                      d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0A12 12 0 0 0 1.31 6.43l4.16 3.23c.92-2.77 3.49-4.82 6.53-4.82Z"
-                    />
-                  </svg>
-                  <span>{isGoogleLoading ? 'Signing in...' : 'Continue with Google'}</span>
-                </button>
-                <div className="absolute inset-0 opacity-0 overflow-hidden cursor-pointer">
-                  <GoogleLogin
-                    onSuccess={handleGoogleSuccess}
-                    onError={handleGoogleError}
-                    size="large"
-                    width="400"
-                    text="continue_with"
-                  />
-                </div>
+              <div className="flex justify-center">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={handleGoogleError}
+                  useOneTap={false}
+                  text="continue_with"
+                  size="large"
+                />
               </div>
 
               {loginError && (
-                <p className="text-xs font-sans text-red-600 text-left">{loginError}</p>
+                <p className="text-xs font-sans text-red-600 text-left">
+                  {loginError}
+                </p>
               )}
 
-              {/* Decorative Divider */}
               <div className="flex items-center justify-between text-xs text-brand-charcoal-muted/40 font-sans font-medium">
                 <hr className="border-brand-charcoal/5 w-[42%]" />
                 <span>or</span>
                 <hr className="border-brand-charcoal/5 w-[42%]" />
               </div>
             </div>
-
             {/* Email Form */}
             <form onSubmit={handleSimulateLogin} className="space-y-4">
               <div className="flex flex-col space-y-1.5 text-left">
