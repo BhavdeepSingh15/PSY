@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PageTransition } from '../components/PageTransition';
 import { Button } from '../components/Button';
-import { AlertCircle, CheckCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { submitConsultation } from '../services/consultationService';
@@ -192,20 +192,45 @@ export const BookSessionPage: React.FC = () => {
 
       <section className="py-24 bg-brand-cream relative">
         <div className="max-w-3xl mx-auto px-6 md:px-12">
+          {/* Authentication banner if not logged in */}
+          {!isAuthenticated && (
+            <div className="p-4 bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-900/30 text-amber-800 dark:text-amber-300 rounded-2xl flex items-start space-x-3 text-sm font-sans mb-8">
+              <AlertCircle size={18} className="shrink-0 mt-0.5 text-amber-600" />
+              <div className="space-y-1 text-left">
+                <p className="font-sans font-bold text-xs uppercase tracking-wider">Authentication Required</p>
+                <p className="text-xs text-brand-charcoal-muted leading-relaxed">
+                  You must be signed in to request a consultation slot. Please{' '}
+                  <button
+                    type="button"
+                    onClick={() => navigate('/login')}
+                    className="underline font-semibold text-brand-sage hover:text-brand-sage-dark cursor-pointer"
+                  >
+                    sign in or register
+                  </button>{' '}
+                  first to preserve your information and complete your request.
+                </p>
+              </div>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-10 text-left">
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
-                <span className="w-6 h-6 rounded-full bg-brand-sage text-brand-cream font-sans text-xs font-bold flex items-center justify-center">
+                <span className="w-6 h-6 rounded-full bg-brand-sage text-brand-cream font-sans text-xs font-bold flex items-center justify-center shrink-0">
                   1
                 </span>
                 <h3 className="font-serif text-2xl font-medium text-brand-charcoal">Therapy Type</h3>
               </div>
+              <p className="text-xs font-sans text-brand-charcoal-muted">
+                Select the specialization that aligns with your current goals.
+              </p>
               <select
                 id="therapyType"
                 name="therapyType"
                 value={therapyType}
                 onChange={(e) => setTherapyType(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-brand-charcoal/10 bg-brand-cream focus:outline-none focus:border-brand-sage focus:ring-1 focus:ring-brand-sage text-sm font-sans text-brand-charcoal cursor-pointer"
+                disabled={!isAuthenticated}
+                className="w-full px-4 py-3 rounded-xl border border-brand-charcoal/10 bg-brand-cream focus:outline-none focus:border-brand-sage focus:ring-1 focus:ring-brand-sage text-sm font-sans text-brand-charcoal cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {THERAPY_TYPES.map((type) => (
                   <option key={type} value={type}>
@@ -217,31 +242,42 @@ export const BookSessionPage: React.FC = () => {
 
             <div className="space-y-6 border-t border-brand-charcoal/5 pt-10">
               <div className="flex items-center space-x-3">
-                <span className="w-6 h-6 rounded-full bg-brand-sage text-brand-cream font-sans text-xs font-bold flex items-center justify-center">
+                <span className="w-6 h-6 rounded-full bg-brand-sage text-brand-cream font-sans text-xs font-bold flex items-center justify-center shrink-0">
                   2
                 </span>
                 <h3 className="font-serif text-2xl font-medium text-brand-charcoal">
                   Choose Date &amp; Available Hour
                 </h3>
               </div>
+              <p className="text-xs font-sans text-brand-charcoal-muted">
+                Select a convenient day and time. All online sessions are hosted on our secure telehealth platform.
+              </p>
 
               {scheduleLoading && (
-                <p className="font-sans text-sm text-brand-charcoal-muted">
-                  Loading available sessions...
-                </p>
+                <div className="flex items-center space-x-3 py-6 animate-pulse" role="status">
+                  <div className="w-5 h-5 rounded-full border-2 border-brand-sage border-t-transparent animate-spin shrink-0" />
+                  <span className="text-sm font-sans text-brand-charcoal-muted">Retrieving available session slots...</span>
+                </div>
               )}
 
               {scheduleError && (
-                <div className="p-4 bg-red-50 text-red-700 rounded-xl flex items-center space-x-2 text-xs font-sans">
+                <div className="p-4 bg-red-50 text-red-700 rounded-xl flex items-center space-x-2 text-xs font-sans" role="alert">
                   <AlertCircle size={14} className="shrink-0" />
                   <span>{scheduleError}</span>
                 </div>
               )}
 
               {!scheduleLoading && !scheduleError && !hasVisibleSlots && (
-                <p className="font-sans text-sm text-brand-charcoal-muted py-4">
-                  No consultation sessions are currently available.
-                </p>
+                <div className="p-6 bg-brand-linen/30 border border-brand-stone/20 rounded-2xl text-center space-y-2 py-8">
+                  <p className="font-serif text-lg text-brand-charcoal">No Available Consultation Times</p>
+                  <p className="font-sans text-xs md:text-sm text-brand-charcoal-muted max-w-md mx-auto leading-relaxed">
+                    There are currently no slots open for booking. Please contact us directly at{' '}
+                    <a href="mailto:support@psytherapy.com" className="text-brand-sage hover:underline font-semibold">
+                      support@psytherapy.com
+                    </a>{' '}
+                    to coordinate a suitable appointment.
+                  </p>
+                </div>
               )}
 
               {!scheduleLoading && !scheduleError && hasVisibleSlots && currentDay && (
@@ -250,13 +286,16 @@ export const BookSessionPage: React.FC = () => {
                     <span className="text-[11px] font-sans font-bold tracking-widest uppercase text-brand-charcoal-muted/60">
                       Select Date (Next 7 Days)
                     </span>
-                    <div className="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide">
+                    <div className="flex space-x-3 overflow-x-auto pb-2 scrollbar-hide" role="listbox" aria-label="Select date">
                       {visibleDays.map((calDay, idx) => (
                         <button
                           key={calDay.date}
                           type="button"
+                          disabled={!isAuthenticated}
                           onClick={() => handleDaySelect(idx)}
-                          className={`p-4 min-w-[76px] rounded-2xl border flex flex-col items-center space-y-1 shrink-0 transition-all duration-300 cursor-pointer ${
+                          aria-selected={selectedDayIdx === idx}
+                          aria-label={`Select date: ${calDay.fullDate}`}
+                          className={`p-4 min-w-[76px] rounded-2xl border flex flex-col items-center space-y-1 shrink-0 transition-all duration-300 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
                             selectedDayIdx === idx
                               ? 'bg-brand-sage text-brand-cream border-brand-sage'
                               : 'bg-brand-linen/40 border-brand-charcoal/5 hover:border-brand-stone'
@@ -284,11 +323,14 @@ export const BookSessionPage: React.FC = () => {
                     <span className="text-[11px] font-sans font-bold tracking-widest uppercase text-brand-charcoal-muted/60">
                       Available Sessions
                     </span>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3" role="listbox" aria-label="Available sessions">
                       {currentDay.slots.map((slot) => {
                         const key = slotSelectionKey(currentDay.date, slot);
                         const isSelected = selectedSlotKey === key;
-                        const isDisabled = slot.isFull;
+                        const isDisabled = slot.isFull || !isAuthenticated;
+                        const spotsText = slot.isFull
+                          ? 'Fully booked'
+                          : `${slot.availableCapacity} spot${slot.availableCapacity === 1 ? '' : 's'} available`;
 
                         return (
                           <button
@@ -296,6 +338,8 @@ export const BookSessionPage: React.FC = () => {
                             type="button"
                             onClick={() => !isDisabled && setSelectedSlotKey(key)}
                             disabled={isDisabled}
+                            aria-selected={isSelected}
+                            aria-label={`${slot.title}, ${slot.timeRange}, ${spotsText}`}
                             className={`py-4 px-4 rounded-xl border text-left transition-all duration-300 ${
                               isDisabled
                                 ? 'bg-brand-linen/20 border-brand-charcoal/5 text-brand-charcoal-muted/50 cursor-not-allowed'
@@ -307,9 +351,7 @@ export const BookSessionPage: React.FC = () => {
                             <p className="font-sans text-sm font-semibold">{slot.title}</p>
                             <p className="font-sans text-xs mt-1 opacity-90">{slot.timeRange}</p>
                             <p className="font-sans text-[10px] mt-2 uppercase tracking-wide opacity-75">
-                              {slot.isFull
-                                ? 'Fully booked'
-                                : `${slot.availableCapacity} spot${slot.availableCapacity === 1 ? '' : 's'} available`}
+                              {spotsText}
                             </p>
                           </button>
                         );
@@ -322,10 +364,21 @@ export const BookSessionPage: React.FC = () => {
 
             <div className="space-y-6 border-t border-brand-charcoal/5 pt-10">
               <div className="flex items-center space-x-3">
-                <span className="w-6 h-6 rounded-full bg-brand-sage text-brand-cream font-sans text-xs font-bold flex items-center justify-center">
+                <span className="w-6 h-6 rounded-full bg-brand-sage text-brand-cream font-sans text-xs font-bold flex items-center justify-center shrink-0">
                   3
                 </span>
                 <h3 className="font-serif text-2xl font-medium text-brand-charcoal">Your Information</h3>
+              </div>
+              <p className="text-xs font-sans text-brand-charcoal-muted">
+                All clinical and personal information remains strictly confidential under standard HIPAA rules.
+              </p>
+
+              {/* Secure Lock Badge */}
+              <div className="flex items-start space-x-3 p-4 bg-brand-linen/40 border border-brand-stone/30 rounded-xl mb-6">
+                <Lock size={16} className="text-brand-sage shrink-0 mt-0.5" />
+                <p className="text-xs font-sans text-brand-charcoal-muted leading-relaxed">
+                  <strong>Secure & Private:</strong> Your form entries are transmitted securely, stored safely in our clinical database, and are never shared with third parties.
+                </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -338,10 +391,11 @@ export const BookSessionPage: React.FC = () => {
                     id="name"
                     name="name"
                     required
+                    disabled={!isAuthenticated}
                     value={formData.name}
                     onChange={handleInputChange}
                     placeholder="Your full name"
-                    className="px-4 py-3 rounded-xl border border-brand-charcoal/10 bg-brand-cream focus:outline-none focus:border-brand-sage focus:ring-1 focus:ring-brand-sage text-sm"
+                    className="px-4 py-3 rounded-xl border border-brand-charcoal/10 bg-brand-cream focus:outline-none focus:border-brand-sage focus:ring-1 focus:ring-brand-sage text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                   />
                 </div>
 
@@ -357,8 +411,9 @@ export const BookSessionPage: React.FC = () => {
                     value={formData.email}
                     onChange={handleInputChange}
                     readOnly={!!user?.email}
+                    disabled={!isAuthenticated}
                     placeholder="e.g. eleanor@vance.com"
-                    className="px-4 py-3 rounded-xl border border-brand-charcoal/10 bg-brand-cream focus:outline-none focus:border-brand-sage focus:ring-1 focus:ring-brand-sage text-sm disabled:opacity-70"
+                    className="px-4 py-3 rounded-xl border border-brand-charcoal/10 bg-brand-cream focus:outline-none focus:border-brand-sage focus:ring-1 focus:ring-brand-sage text-sm disabled:opacity-70 disabled:cursor-not-allowed"
                   />
                 </div>
 
@@ -371,10 +426,11 @@ export const BookSessionPage: React.FC = () => {
                     id="phone"
                     name="phone"
                     required
+                    disabled={!isAuthenticated}
                     value={formData.phone}
                     onChange={handleInputChange}
                     placeholder="e.g. +1 (503) 555-0100"
-                    className="px-4 py-3 rounded-xl border border-brand-charcoal/10 bg-brand-cream focus:outline-none focus:border-brand-sage focus:ring-1 focus:ring-brand-sage text-sm"
+                    className="px-4 py-3 rounded-xl border border-brand-charcoal/10 bg-brand-cream focus:outline-none focus:border-brand-sage focus:ring-1 focus:ring-brand-sage text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                   />
                 </div>
 
@@ -389,10 +445,11 @@ export const BookSessionPage: React.FC = () => {
                     required
                     min={1}
                     max={120}
+                    disabled={!isAuthenticated}
                     value={formData.age}
                     onChange={handleInputChange}
                     placeholder="e.g. 32"
-                    className="px-4 py-3 rounded-xl border border-brand-charcoal/10 bg-brand-cream focus:outline-none focus:border-brand-sage focus:ring-1 focus:ring-brand-sage text-sm"
+                    className="px-4 py-3 rounded-xl border border-brand-charcoal/10 bg-brand-cream focus:outline-none focus:border-brand-sage focus:ring-1 focus:ring-brand-sage text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                   />
                 </div>
 
@@ -405,10 +462,11 @@ export const BookSessionPage: React.FC = () => {
                     name="concern"
                     required
                     rows={3}
+                    disabled={!isAuthenticated}
                     value={formData.concern}
                     onChange={handleInputChange}
                     placeholder="What would you like support with?"
-                    className="px-4 py-3 rounded-xl border border-brand-charcoal/10 bg-brand-cream focus:outline-none focus:border-brand-sage focus:ring-1 focus:ring-brand-sage text-sm resize-none"
+                    className="px-4 py-3 rounded-xl border border-brand-charcoal/10 bg-brand-cream focus:outline-none focus:border-brand-sage focus:ring-1 focus:ring-brand-sage text-sm resize-none disabled:opacity-60 disabled:cursor-not-allowed"
                   />
                 </div>
 
@@ -420,43 +478,43 @@ export const BookSessionPage: React.FC = () => {
                     id="additionalNotes"
                     name="additionalNotes"
                     rows={3}
+                    disabled={!isAuthenticated}
                     value={formData.additionalNotes}
                     onChange={handleInputChange}
                     placeholder="Anything else you'd like us to know (optional)..."
-                    className="px-4 py-3 rounded-xl border border-brand-charcoal/10 bg-brand-cream focus:outline-none focus:border-brand-sage focus:ring-1 focus:ring-brand-sage text-sm resize-none"
+                    className="px-4 py-3 rounded-xl border border-brand-charcoal/10 bg-brand-cream focus:outline-none focus:border-brand-sage focus:ring-1 focus:ring-brand-sage text-sm resize-none disabled:opacity-60 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
 
-              {!isAuthenticated && (
-                <p className="text-xs font-sans text-brand-charcoal-muted">
-                  You must be signed in to submit a consultation request.{' '}
-                  <button
-                    type="button"
-                    onClick={() => navigate('/login')}
-                    className="text-brand-sage hover:text-brand-sage-dark underline cursor-pointer"
-                  >
-                    Sign in here
-                  </button>
-                </p>
-              )}
-
               {errorMsg && (
-                <div className="p-4 bg-red-50 text-red-700 rounded-xl flex items-center space-x-2 text-xs font-sans">
+                <div className="p-4 bg-red-50 text-red-700 rounded-xl flex items-center space-x-2 text-xs font-sans" role="alert">
                   <AlertCircle size={14} className="shrink-0" />
                   <span>{errorMsg}</span>
                 </div>
               )}
 
-              <Button
-                variant="primary"
-                size="lg"
-                type="submit"
-                className="w-full justify-center"
-                disabled={isSubmitting || !hasBookableSlot}
-              >
-                <span>{isSubmitting ? 'Submitting...' : 'Request Consultation'}</span>
-              </Button>
+              {!isAuthenticated ? (
+                <Button
+                  variant="primary"
+                  size="lg"
+                  type="button"
+                  onClick={() => navigate('/login')}
+                  className="w-full justify-center bg-brand-sage hover:bg-brand-sage-dark cursor-pointer font-sans"
+                >
+                  <span>Sign In to Request Consultation</span>
+                </Button>
+              ) : (
+                <Button
+                  variant="primary"
+                  size="lg"
+                  type="submit"
+                  className="w-full justify-center font-sans"
+                  disabled={isSubmitting || !hasBookableSlot}
+                >
+                  <span>{isSubmitting ? 'Submitting...' : 'Request Consultation'}</span>
+                </Button>
+              )}
             </div>
           </form>
         </div>
@@ -481,16 +539,31 @@ export const BookSessionPage: React.FC = () => {
                 <CheckCircle size={36} strokeWidth={1.5} />
               </div>
 
-              <div className="space-y-3">
-                <h3 className="font-serif text-2xl md:text-3xl font-medium tracking-wide text-brand-charcoal">
-                  Consultation Request Submitted
+              <div className="space-y-4 text-left">
+                <h3 className="font-serif text-2xl md:text-3xl font-medium tracking-wide text-brand-charcoal text-center">
+                  Consultation Requested
                 </h3>
-                <p className="font-sans text-sm text-brand-charcoal-muted leading-relaxed">
-                  Thank you for reaching out. Your consultation request for{' '}
-                  <strong className="text-brand-charcoal">{confirmedBooking.fullDate}</strong> at{' '}
-                  <strong className="text-brand-charcoal">{confirmedBooking.timeRange}</strong> has been
-                  submitted successfully.
+                <p className="font-sans text-sm text-brand-charcoal-muted leading-relaxed text-center">
+                  Your consultation request for <strong className="text-brand-charcoal">{confirmedBooking.fullDate}</strong> at <strong className="text-brand-charcoal">{confirmedBooking.timeRange}</strong> has been received.
                 </p>
+                
+                <div className="border-t border-brand-stone/40 pt-4 space-y-3">
+                  <h4 className="font-sans text-xs font-bold tracking-widest uppercase text-brand-charcoal">What happens next:</h4>
+                  <ul className="space-y-3 text-xs font-sans text-brand-charcoal-muted">
+                    <li className="flex items-start gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand-sage mt-1.5 shrink-0" />
+                      <span><strong>Clinical Review:</strong> Your practitioner will review your primary concern within 24 business hours.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand-sage mt-1.5 shrink-0" />
+                      <span><strong>Email Confirmation:</strong> Once confirmed, you will receive a secure video consultation link via email.</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-brand-sage mt-1.5 shrink-0" />
+                      <span><strong>Intake Form:</strong> Check your inbox for our digital intake questionnaire to complete before your session begins.</span>
+                    </li>
+                  </ul>
+                </div>
               </div>
 
               <Button variant="primary" size="md" onClick={handleCloseConfirmation} className="w-full py-3">
